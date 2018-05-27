@@ -18,6 +18,7 @@ import com.sbank.controller.BankController;
 import com.sbank.dao.BankRepository;
 import com.sbank.exception.HandleException;
 import com.sbank.model.Bank;
+import com.sbank.model.Bank_Denomination;
 //import com.sbank.model.RefMoney;
 import com.sbank.wrappers.WrapperCreateBank;
 
@@ -39,6 +40,11 @@ public class BankServiceImpl  implements BankService {
 	@Autowired
 	private Environment environment;
 	
+	
+	
+	@Autowired
+	private BankDenominationServiceImpl  bankDenominationServiceImpl;
+	
 	/**/
 	/* creating bank with amount which is in parameter
 	 * @see com.sbank.service.BankService#createBank(com.sbank.model.Bank)
@@ -58,6 +64,7 @@ public class BankServiceImpl  implements BankService {
 	      } else {
 	                Bank bank = new Bank();
 	                bank.setAmount(object.getAmount());
+	                bankDenominationServiceImpl.initialzeDenomination();
 	                bankCustomer = bankrepository.save(bank);
 	                return bankCustomer;
 	      }

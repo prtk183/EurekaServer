@@ -21,8 +21,18 @@ public class WrapperRequestObject {
     
   }
 
- 
+  private List<Integer> refernceTable;
 
+
+
+  public List<Integer> getRefernceTable() {
+    return refernceTable;
+  }
+
+
+  public void setRefernceTable(List<Integer> refernceTable) {
+    this.refernceTable = refernceTable;
+  }
 
 
   /**

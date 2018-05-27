@@ -35,7 +35,7 @@ public class AccountTestCase {
   @Mock
   AccountRepository accountRepo;
   
-  @Test
+ /* @Test
   public void TestCreateAccount() throws HandleException
   {
     final Bank bank=new Bank(1L,new BigDecimal(100));
@@ -49,9 +49,9 @@ public class AccountTestCase {
     //when(bankServiceImpl.updateBank(Mockito.<Bank>any())).thenReturn();
     
     when(accountRepo.save(Mockito.<Account>any())).thenReturn(account);
-    assertEquals(account.getBank(),accountService.createAccount(object).getBank());
+    assertEquals(account.getBank(),accountService.createAccount(object).getBank());*/
     
-  }
+//  }
   
  
   

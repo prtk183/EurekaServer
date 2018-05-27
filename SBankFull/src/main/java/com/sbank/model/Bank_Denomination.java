@@ -1,4 +1,4 @@
-/*package com.sbank.model;
+package com.sbank.model;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -13,44 +13,56 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
-
-
 @Entity
 public class Bank_Denomination {
-  *//**------------*//*
+  
+  /**------------*/
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long bankdenominationref;
   
-  @ElementCollection
-  private List<Integer> denomination;
-  
-  @ElementCollection
-  private Map<Integer, Integer> bankDenominations;
-  
-  public Bank_Denomination(List<Integer> denomination, Map<Integer, Integer> bankDenominations )
-  {
-    Collections.copy(this.denomination, denomination);
-    this.bankDenominations.putAll(bankDenominations);
-  }
+  /**--------available currency with bank---------.*/
+ private Integer currency;
  
-  
-  public Map<Integer, Integer> getBankDenominations() {
-    return bankDenominations;
+ /**---------count of currency------------.*/
+ private Integer count;
+ 
+ Bank_Denomination()
+ {
+   
+ }
+ 
+  @Override
+public String toString() {
+  return "Bank_Denomination [bankdenominationref=" + bankdenominationref + ", currency=" + currency
+      + ", count=" + count + "]";
+}
+
+  public Bank_Denomination(Integer currency, Integer count) {
+  super();
+  this.currency = currency;
+  this.count = count;
+}
+
+  public Integer getCurrency() {
+    return currency;
   }
 
-  public void setBankDenominations(Map<Integer, Integer> bankDenominations) {
-    this.bankDenominations = bankDenominations;
+  public void setCurrency(Integer currency) {
+    this.currency = currency;
   }
 
-  public List<Integer> getDenomination() {
-    return denomination;
+  public Integer getCount() {
+    return count;
   }
 
-  public void setDenomination(List<Integer> denomination) {
-    this.denomination = denomination;
+  public void setCount(Integer count) {
+    this.count = count;
   }
 
+ 
+ 
+ 
+ 
  
 }
-*/

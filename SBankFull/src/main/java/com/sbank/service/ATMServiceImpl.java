@@ -1,6 +1,7 @@
 package com.sbank.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -22,6 +23,8 @@ import com.sbank.wrappers.WrapperATMCreate;
 import com.sbank.wrappers.WrapperATMWithdraw;
 import com.sbank.wrappers.WrapperDenomination;
 import com.sbank.wrappers.WrapperRequestObject;
+import com.sbank.wrappers.WrapperTransaction;
+import com.sbank.wrappers.WrapperUpdateDenomination;
 
 /**
  * @author hp
@@ -34,7 +37,7 @@ public class ATMServiceImpl implements ATMService {
   @Autowired
   private BankServiceImpl bankServiceImpl;
   
-  /**--------atmrepository object---------*/
+  /**--------atm repository object---------*/
   @Autowired
   private ATMRepository atmrepository;
   
@@ -42,10 +45,19 @@ public class ATMServiceImpl implements ATMService {
   @Autowired
   private AccountServiceImpl accountServiceImpl;
   
-  /*
+  
   @Autowired
-  AtmDenominationServiceImpl atmDenominationServiceImpl;
-  */
+  private AtmDenominationServiceImpl atmDenominationServiceImpl;
+  
+  @Autowired
+  private BankDenominationServiceImpl bankDenominationServiceImpl;
+  
+  @Autowired
+  private TransactionServiceImpl transactionServiceImpl;
+  
+  @Autowired
+  private CustomerServiceImpl customerServiceImpl; 
+  
   /**-------environment object-------.*/
   @Autowired
   private Environment environment;
@@ -67,6 +79,7 @@ public class ATMServiceImpl implements ATMService {
         ATM atm = new ATM();
         atm.setAmount(object.getAmount());
         atm.setBank(bankServiceImpl.getBank(object.getBankId()));
+        atmDenominationServiceImpl.initialzeDenomination();
         atm = atmrepository.save(atm);
         return atm;
     } else {
@@ -87,6 +100,7 @@ public class ATMServiceImpl implements ATMService {
         if (atmrepository.findById(object.getAtmID()).isPresent()
             && bankServiceImpl.getBank(object.getBankId()).getBankId().equals(object.getBankId())) //validating input data
         {
+          
             ATM atm = atmrepository.findById(object.getAtmID()).get();
             atm.setAmount(atm.getAmount().add(object.getAmount()));
             atm.setBank(bankServiceImpl.getBank(object.getBankId()));
@@ -99,10 +113,32 @@ public class ATMServiceImpl implements ATMService {
             if (object.getAmount().compareTo(bankamount) == -1
                 && object.getAmount().compareTo(validamount) == 1) // checking for valid amount transefer request
             {
+              
+
+              WrapperRequestObject PObject = new WrapperRequestObject();
+              PObject.setId(object.getAtmID());
+              PObject.setRequestamount(object.getAmount());
+              List<Integer> atmreftable = atmDenominationServiceImpl.getAvailableRefernceTable();
+              PObject.setRefernceTable(atmreftable);
+              
+              WrapperDenomination permission = atmDenominationServiceImpl.getDenomination(PObject);
+              
+              if (permission.getPermission() == true && object.getAmount().intValue()%2==0 ) 
+              {
+                WrapperUpdateDenomination update = new WrapperUpdateDenomination();
+                update.setDenominationTable(permission.getDenominationTable());
+                bankDenominationServiceImpl.subDenominations(update);
+                
+                atmDenominationServiceImpl.addDenominations(update);
+                
                bank.setAmount(bank.getAmount().subtract(object.getAmount()));
                bankServiceImpl.updateBank(bank);
                atm = atmrepository.save(atm);
                return atm;
+              } else {
+                throw new HandleException("amount denied");
+
+              }
 
             } else {
               throw new HandleException(environment.getProperty("401"));
@@ -133,46 +169,52 @@ public class ATMServiceImpl implements ATMService {
             BigDecimal validamount = new BigDecimal(100);
             if(object.getAmount().compareTo(atm.getAmount())==-1 && object.getAmount().compareTo(validamount)==1)   //validating request wrt to atm
             {
-                atm.setAmount(atm.getAmount().subtract(object.getAmount())); 
+               
                 Bank bank = bankServiceImpl.getBank(object.getBankId());
                 
                 if((object.getAmount().compareTo(bank.getAmount())==-1) &&
                     (object.getAmount().compareTo(validamount))==1) //validating the requested amount wrt bank                                                                                             //against money in atm
                 {
                            Account account = accountServiceImpl.getAccountDetail(object.getAccountId());
+                           
                           if((object.getAmount().compareTo(account.getAmount())==-1 || object.getAmount().compareTo(account.getAmount())==0)
                           && object.getAmount().compareTo(validamount)==1 )   //validating wrt to account
                           {
-                            account.setAmount(account.getAmount().subtract(object.getAmount()));
                             
                             WrapperRequestObject PObject = new WrapperRequestObject();
                             PObject.setId(object.getAtmId());
                             PObject.setRequestamount(object.getAmount());
-                            /*                           
+                            List<Integer> atmreftable = atmDenominationServiceImpl.getAvailableRefernceTable();
+                            PObject.setRefernceTable(atmreftable);
+                            
                             WrapperDenomination permission = atmDenominationServiceImpl.getDenomination(PObject);
                             
-                            Atm_Denomination updatetable = new Atm_Denomination(atmDenominationServiceImpl.getDenomination(PObject).getDenominations(),
-                                atmDenominationServiceImpl.getDenomination(PObject).getDenominationTable());
-                            atmDenominationServiceImpl.upadateDenominations(updatetable);
-                            
-                            
-          
-                            if(permission.getPermission()==true)
+                            if (permission.getPermission() == true && object.getAmount().intValue()%2==0 ) 
                             {
-                            */
+                              atm.setAmount(atm.getAmount().subtract(object.getAmount())); 
+                              account.setAmount(account.getAmount().subtract(object.getAmount()));
+
+                          
                             //when all validation is succesfull, saving into corresponding tables
+                           
+                              final String transactionType = environment.getProperty("2222");
+                              WrapperTransaction Obj = new WrapperTransaction(accountServiceImpl.getAccountDetail(object.getAccountId()).getCustomer().getCustomerId(),
+                              object.getAccountId(), transactionType, object.getAmount());
+                              transactionServiceImpl.createTransaction(Obj);
+                              WrapperUpdateDenomination sendUpdate = new WrapperUpdateDenomination(permission.getDenominationTable());
+                              atmDenominationServiceImpl.subDenominations(sendUpdate);
                               accountServiceImpl.updateAccount(account);
-                            
+                              
                               atmrepository.save(atm);
 
                             return atm;
-                          /*  
+                            
                           }
                             else
                             {
                               throw new HandleException(environment.getProperty("402")); 
                             }
-                            */
+                            
                        } else {
                                  throw new HandleException(environment.getProperty("403"));
                       }

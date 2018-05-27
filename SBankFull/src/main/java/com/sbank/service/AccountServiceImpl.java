@@ -14,8 +14,10 @@ import org.springframework.util.SystemPropertyUtils;
 
 import com.sbank.wrappers.CreateAccountWrapper;
 import com.sbank.wrappers.WrapperAccountDeposite;
+import com.sbank.wrappers.WrapperDenomination;
 import com.sbank.wrappers.WrapperRequestObject;
 import com.sbank.wrappers.WrapperTransaction;
+import com.sbank.wrappers.WrapperUpdateDenomination;
 import com.sbank.dao.AccountRepository;
 import com.sbank.dao.BankRepository;
 import com.sbank.dao.CustomerRepository;
@@ -53,8 +55,11 @@ public class AccountServiceImpl implements AccountService {
   private TransactionServiceImpl transactionServiceImpl;
   
   /**----------------bankdenominationImpl object----------------------------.*/
-  //@Autowired
-  //private BankDenominationServiceImpl bankdenominationServiceImpl;
+  @Autowired
+  private BankDenominationServiceImpl bankdenominationServiceImpl;
+  
+  @Autowired
+  private RefMoneyServiceImpl refMoneyServiceImpl;
  
   /**
    * creating an account.
@@ -126,7 +131,7 @@ else
     // TODO Auto-generated method stub
     Account act = null;
     log.info(" in  depositeMoney");
- if(object.getAccountId()!=null && object.getAmount()!=null && object.getBankId()!=null && object.getCustomerId()!=null)
+ if( object.getAmount()!=null && object.getBankId()!=null && object.getCustomerId()!=null)
 {
       if (customerServiceImpl.getCustomer(object.getCustomerId()).getCustomerId()
         .equals(object.getCustomerId()) //// checking valid customer and bank
@@ -145,11 +150,13 @@ else
        
                 final WrapperRequestObject bpobject = new WrapperRequestObject();
                 bpobject.setId(object.getBankId());
-                bpobject.setRequestamount(val);
+                bpobject.setRequestamount(object.getAmount());
+                List<Integer> refernceTable = refMoneyServiceImpl.getReferenceTable();
+                bpobject.setRefernceTable(refernceTable);
         
-                // Boolean permmission = bankdenominationServiceImpl.getDenomination(bpobject).getPermission();
-                //permmission == true && it was in if condition
-                  if ( object.getAmount().intValue()%2==0 ) 
+                WrapperDenomination permission = bankdenominationServiceImpl.getDenomination(bpobject);
+                
+                  if (permission.getPermission() == true && object.getAmount().intValue()%2==0 ) 
                   {
           
                       BigDecimal updatedbank = initialamountinbank.add(object.getAmount()); // adding depositing
@@ -162,17 +169,13 @@ else
                       bank.setAmount(updatedbank);
                       String transactionType = environment.getProperty("1111");
          
-                      /*  was updating bank denominationtable 
-                        Bank_Denomination updatetable = new Bank_Denomination(bankdenominationServiceImpl.getDenomination(bpobject).getDenominations(),
-                        bankdenominationServiceImpl.getDenomination(bpobject).getDenominationTable());
-                        bankdenominationServiceImpl.upadateDenominations(updatetable);
-                      */
           
                       WrapperTransaction Object = new WrapperTransaction(object.getCustomerId(),
                           object.getAccountId(), transactionType, object.getAmount());
 
                       final Transaction transaction = transactionServiceImpl.createTransaction(Object);
-                      
+                      WrapperUpdateDenomination sendUpdate = new WrapperUpdateDenomination(permission.getDenominationTable());
+                      bankdenominationServiceImpl.addDenominations(sendUpdate);
                       accountRepository.saveAndFlush(act);
                       bankServiceImpl.updateBank(bank);
                       return act;
@@ -218,21 +221,6 @@ else
             BigDecimal initialamountinaccount = act.getAmount();
             BigDecimal validamount = new BigDecimal(100);
 
-         // withdrawing substracting in account
-            if ((object.getAmount().compareTo(initialamountinaccount) == -1  || object.getAmount().compareTo(initialamountinaccount) == 0)
-                && object.getAmount().compareTo(validamount) == 1) 
-            {
-                final BigDecimal updatedact = initialamountinaccount.subtract(object.getAmount()); 
-                act.setAmount(updatedact);
-                final String transactionType = environment.getProperty("2222");
-                WrapperTransaction Obj = new WrapperTransaction(object.getCustomerId(),
-                object.getAccountId(), transactionType, object.getAmount());
-                transactionServiceImpl.createTransaction(Obj);
-                accountRepository.saveAndFlush(act);
-            } else {
-                         throw new HandleException(environment.getProperty("303"));
-            }
-
             // withdrawing into bank
             final BigDecimal initialamountinbank = bank.getAmount();
 
@@ -240,27 +228,48 @@ else
                 && object.getAmount().compareTo(initialamountinbank) == -1
                 && object.getAmount().compareTo(validamount) == 1 && object.getAmount().intValue()%2==0) 
             {
+             
+              // withdrawing substracting in account
+              if ((object.getAmount().compareTo(initialamountinaccount) == -1  || object.getAmount().compareTo(initialamountinaccount) == 0)
+                  && object.getAmount().compareTo(validamount) == 1) 
+                {
+                
 
-                BigDecimal updatedbank = initialamountinbank.subtract(object.getAmount()); 
                 final WrapperRequestObject bpobject = new WrapperRequestObject();
                 bpobject.setId(object.getBankId());
-                bpobject.setRequestamount(val);
+                bpobject.setRequestamount(object.getAmount());
+                List<Integer> refernceTable = bankdenominationServiceImpl.getAvailableRefernceTable();
+                bpobject.setRefernceTable(refernceTable);
         
-                //Boolean permmission = bankdenominationServiceImpl.getDenomination(bpobject).getPermission();
-        
-                    /*if (permmission == true) 
-                      {*/
-          
-                          bank.setAmount(updatedbank);
-                          bankServiceImpl.updateBank(bank);
-       
-                          return act;
-        
-                     /*else
-                    {
-                        throw new HandleException(environment.getProperty("701"));
-                    }
-                        */
+                WrapperDenomination permission = bankdenominationServiceImpl.getDenomination(bpobject);
+                
+                  if (permission.getPermission() == true && object.getAmount().intValue()%2==0 ) 
+                  {
+                
+                    final BigDecimal updatebank= initialamountinbank.subtract(object.getAmount());
+                    bank.setAmount(updatebank);
+                
+                    final BigDecimal updatedact = initialamountinaccount.subtract(object.getAmount()); 
+                    act.setAmount(updatedact);
+                  
+                    final String transactionType = environment.getProperty("2222");
+                    WrapperTransaction Obj = new WrapperTransaction(object.getCustomerId(),
+                    object.getAccountId(), transactionType, object.getAmount());
+                    transactionServiceImpl.createTransaction(Obj);
+                    WrapperUpdateDenomination sendUpdate = new WrapperUpdateDenomination(permission.getDenominationTable());
+                    bankdenominationServiceImpl.subDenominations(sendUpdate);
+                    accountRepository.saveAndFlush(act);
+                    bankServiceImpl.updateBank(bank);
+             
+                    return act;
+                  } else {
+                    
+                    throw new HandleException("permission denied");
+                  }
+                  
+                } else {
+                throw new HandleException(environment.getProperty("303"));
+                }
             } else {
                       throw new HandleException(environment.getProperty("304"));
             }
@@ -272,6 +281,7 @@ else
     {
       throw new HandleException(environment.getProperty("7777"));
     }
+    
 
   }
 

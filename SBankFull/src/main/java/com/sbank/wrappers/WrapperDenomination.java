@@ -8,20 +8,23 @@ public class WrapperDenomination {
  /**-------DenominationTable--------.*/ 
  Map<Integer, Integer> DenominationTable;
   
- /**-------Permisssion--------.*/
+
+
+/**-------Permisssion--------.*/
   Boolean permission;
   
-  
-List<Integer> denominations;
+  public WrapperDenomination(Map<Integer, Integer> denominationTable, Boolean permission) {
+    super();
+    DenominationTable = denominationTable;
+    this.permission = permission;
+  }
 
-  public List<Integer> getDenominations() {
-  return denominations;
-}
 
-
-public void setDenominations(List<Integer> denominations) {
-  this.denominations = denominations;
-}
+  @Override
+  public String toString() {
+    return "WrapperDenomination [DenominationTable=" + DenominationTable + ", permission="
+        + permission + "]";
+  }
 
 
   /**

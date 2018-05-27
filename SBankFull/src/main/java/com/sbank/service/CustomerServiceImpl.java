@@ -16,6 +16,7 @@ import com.sbank.dao.CustomerRepository;
 import com.sbank.exception.HandleException;
 import com.sbank.model.Bank;
 import com.sbank.model.Customer;
+import com.sbank.wrappers.WrapperClass;
 import com.sbank.wrappers.WrapperUpdateCustomer;
 
 
@@ -44,23 +45,25 @@ public class CustomerServiceImpl implements CustomerService {
 	 */
 	@SuppressWarnings("unlikely-arg-type")
   @Override
-	public Customer createCustomer(Customer customer) throws HandleException {
+	public Customer createCustomer(WrapperClass customer) throws HandleException {
 	  
-	  Customer addNewCustomer =null;
 	  Log.info("in customer service calling createCustomer");
 	  
-	  if(customer!=null && customer.getBank()!=null && customer.getCustomerId()!=null )
+	  if(customer!=null )
 	  {
 	    
-	  if(( bankServiceImpl.getBank(customer.getBank().getBankId()).getBankId()
-	      .equals(customer.getBank().getBankId()) )) //cheking valid bank in argument 
+	  if(( bankServiceImpl.getBank(customer.getBankId()).getBankId()
+	      .equals(customer.getBankId()) )) //cheking valid bank in argument 
 	    {
-	        if( customer.getCustomerName().isEmpty()
-	            && customer.getCustomerName().isEmpty())  //checking valid customer data
+	        if( customer.getCustomer().getCustomerName().isEmpty())  //checking valid customer data
 	          {
 	              throw new HandleException(environment.getProperty("201"));
 	          } else {
-	                      addNewCustomer =  customerRepository.save(customer);
+	            Customer addNewCustomer =new Customer(customer.getCustomer().getCustomerName(),
+	                customer.customer.getPin(), bankServiceImpl.getBank(customer.getBankId()));
+
+	           
+	                      addNewCustomer =  customerRepository.save(addNewCustomer);
 	                      return addNewCustomer;
 	         }
 	    } else {

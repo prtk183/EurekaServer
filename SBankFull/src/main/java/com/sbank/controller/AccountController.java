@@ -40,7 +40,7 @@ public class AccountController {
    * @throws HandleException
    */
   @PostMapping("/createaccount")
-  public ResponseEntity<?> callcreateAccount(@RequestBody final CreateAccountWrapper object)
+  public ResponseEntity<?> callcreateAccount(@RequestBody  CreateAccountWrapper object)
       throws HandleException {
     log.info("in calling create account from controller");
 

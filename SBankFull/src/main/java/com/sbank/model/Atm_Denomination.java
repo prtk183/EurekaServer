@@ -1,4 +1,4 @@
-/*package com.sbank.model;
+package com.sbank.model;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -14,39 +14,52 @@ import javax.persistence.Id;
 @Entity(name="Atm_Denomination")
 public class Atm_Denomination {
 
-  *//**------------*//*
+  /**------------*/
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long atmDenominationId;
   
-  *//**------------*//*
-  @ElementCollection
-  private List<Integer> denomination;
-  *//**------------*//*
-  @ElementCollection
-  private Map<Integer,Integer> noofdenomination;
+  /**-----------------------.*/
+  private Integer currency;
   
-  public Atm_Denomination(List<Integer> denomination, Map<Integer,Integer> noofdenomination)
+  /**---------------------------.*/
+  private Integer count;
+  
+  public Atm_Denomination()
   {
-    Collections.copy(this.denomination, denomination);
-    this.noofdenomination.putAll(noofdenomination);
+    
   }
-  
-  public List<Integer> getDenomination() {
-    return denomination;
-  }
-  public void setDenomination(List<Integer> denomination) {
-    this.denomination = denomination;
-  }
-  public Map<Integer, Integer> getNoofdenomination() {
-    return noofdenomination;
-  }
-  public void setNoofdenomination(Map<Integer, Integer> noofdenomination) {
-    this.noofdenomination = noofdenomination;
-  }
-  
 
+  public Atm_Denomination(Integer currency, Integer count) {
+    super();
+    this.currency = currency;
+    this.count = count;
+  }
+
+  public Long getAtmDenominationId() {
+    return atmDenominationId;
+  }
+
+  public void setAtmDenominationId(Long atmDenominationId) {
+    this.atmDenominationId = atmDenominationId;
+  }
+
+  public Integer getCurrency() {
+    return currency;
+  }
+
+  public void setCurrency(Integer currency) {
+    this.currency = currency;
+  }
+
+  public Integer getCount() {
+    return count;
+  }
+
+  public void setCount(Integer count) {
+    this.count = count;
+  }
+  
   
   
 }
-*/

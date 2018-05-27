@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.sbank.exception.HandleException;
 import com.sbank.model.Customer;
+import com.sbank.wrappers.WrapperClass;
 import com.sbank.wrappers.WrapperUpdateCustomer;
 
 /**
@@ -21,7 +22,7 @@ public interface CustomerService {
    * @return customer
    * @throws HandleException
    */
-  Customer createCustomer(Customer customer) throws HandleException;
+  Customer createCustomer(WrapperClass customer) throws HandleException;
 	
   
 	/**
@@ -45,4 +46,6 @@ public interface CustomerService {
 	 * @throws HandleException
 	 */
 	Customer updateCustomer(WrapperUpdateCustomer object) throws HandleException;
+
+
 }

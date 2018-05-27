@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Implementation-Title: SBank
 Implementation-Version: 0.0.1-SNAPSHOT
-Built-By: trainee
+Built-By: hp
 Implementation-Vendor-Id: com.example.banknewuml
-Build-Jdk: 1.8.0_162
+Build-Jdk: 1.8.0_171
 Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
  ot-starter-parent/SBank
 Created-By: Maven Integration for Eclipse

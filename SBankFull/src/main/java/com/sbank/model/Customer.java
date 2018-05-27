@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "CUSTOMER")
-public class Customer extends BaseClass{
+public class Customer {
 
  
 /**-------------*/
@@ -51,14 +51,15 @@ public class Customer extends BaseClass{
     this.bank = bank;
   }
 
-  @Override
-  public String toString() {
-    return "Customer [customerId=" + customerId + ", customerName=" + customerName + ", pin=" + pin
-        + "]";
-  }
 
  
-/**/
+@Override
+  public String toString() {
+    return "Customer [customerId=" + customerId + ", customerName=" + customerName + ", pin=" + pin
+        + ", bank=" + bank + "]";
+  }
+
+  /**/
   /**
    * @param bank
    */

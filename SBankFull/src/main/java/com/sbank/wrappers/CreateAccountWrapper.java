@@ -39,11 +39,16 @@ public class CreateAccountWrapper {
   public void setAmount(BigDecimal amount) {
     this.amount = amount;
   }
-  public CreateAccountWrapper(Long bankId, Long customerId, BigDecimal amount) {
+  
+  public CreateAccountWrapper()
+  {
+    
+  }
+  public CreateAccountWrapper(Long bankId, Long customerId, Integer amount) {
     super();
     this.bankId = bankId;
     this.customerId = customerId;
-    this.amount = amount;
+    this.amount = new BigDecimal(amount);
   }
  
 

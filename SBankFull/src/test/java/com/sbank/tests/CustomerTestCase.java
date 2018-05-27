@@ -1,4 +1,4 @@
-package com.sbank.tests;
+/*package com.sbank.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -30,19 +30,19 @@ import com.sbank.service.CustomerServiceImpl;
 @ComponentScan("application.properties")
 public class CustomerTestCase {
 
-  /**----------environment object to get in application properties---------------------.*/
+  *//**----------environment object to get in application properties---------------------.*//*
   @Autowired
   private Environment environment;
   
-  /**-----------to mock customer repo ------.*/
+  *//**-----------to mock customer repo ------.*//*
   @Mock
   private CustomerRepository custmerRepo;
   
-  /**------------to  mock bank repo---------------.*/
+  *//**------------to  mock bank repo---------------.*//*
   @Mock
   private BankRepository bankRepo;
   
-  /**---------------inject customer service--------.*/
+  *//**---------------inject customer service--------.*//*
   @InjectMocks
   private CustomerServiceImpl customerService;
   
@@ -78,3 +78,4 @@ public class CustomerTestCase {
   
   
 }
+*/
