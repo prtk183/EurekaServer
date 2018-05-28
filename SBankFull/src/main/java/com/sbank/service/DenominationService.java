@@ -24,4 +24,6 @@ public interface DenominationService {
   
   List<Integer> getAvailableRefernceTable() throws HandleException;
   
+  List<Integer> getValidRefernceTable() throws HandleException;
+  
 }

@@ -178,10 +178,9 @@ public class AtmDenominationServiceImpl implements DenominationService {
       
           if(ref.getCurrency().equals(entry.getKey()))
           {
-            if( ref.getCount()==0 )
+            if( ref.getCount()!=0  && ref.getCount()>entry.getValue())
             {
-              throw new HandleException("requested amount is not avaialable");
-            }else {
+           
             
             ref.setCount(ref.getCount()-entry.getValue());}
 
@@ -215,6 +214,26 @@ public class AtmDenominationServiceImpl implements DenominationService {
  
   }
 
+  @Override
+  public List<Integer> getValidRefernceTable() throws HandleException {
+    
+    
+    List<Atm_Denomination> dblist = atmDenominationRepository.findAll();
+    
+    List<Integer> refenctable = new ArrayList<Integer>();
+    
+    for(Atm_Denomination ref : dblist)
+    {
+      if(ref.getCount()!=0)
+      {
+        refenctable.add(ref.getCurrency());
+      }
+    }
+    
+    return refenctable;
+  
+ 
+  }
   
 
 

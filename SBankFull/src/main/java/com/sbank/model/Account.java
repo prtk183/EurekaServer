@@ -15,7 +15,6 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import net.bytebuddy.implementation.bind.annotation.Empty;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

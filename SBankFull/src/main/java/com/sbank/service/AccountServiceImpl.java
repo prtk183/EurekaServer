@@ -139,7 +139,7 @@ else
       {
 
           final Bank bank = bankServiceImpl.getBank(object.getBankId());
-          act = accountRepository.findById(object.getAccountId()).get();
+          act = accountRepository.findByaccountId(object.getAccountId()).get();
 
           final BigDecimal val = new BigDecimal(100);
           final BigDecimal initialamountinaccount = act.getAmount();
@@ -167,8 +167,8 @@ else
           
                       act.setAmount(updatedact);
                       bank.setAmount(updatedbank);
-                      String transactionType = environment.getProperty("1111");
-         
+                      String transactionType = "Deposit";
+              
           
                       WrapperTransaction Object = new WrapperTransaction(object.getCustomerId(),
                           object.getAccountId(), transactionType, object.getAmount());
@@ -213,10 +213,10 @@ else
     {
           
         if (bankServiceImpl.getBank(object.getBankId()).getBankId().equals(object.getBankId())
-                && accountRepository.findById(object.getAccountId()).isPresent()) 
+                && accountRepository.findByaccountId(object.getAccountId()).isPresent()) 
         {
             bank = bankServiceImpl.getBank(object.getBankId());
-            act = accountRepository.findById(object.getAccountId()).get();
+            act = accountRepository.findByaccountId(object.getAccountId()).get();
 
             BigDecimal initialamountinaccount = act.getAmount();
             BigDecimal validamount = new BigDecimal(100);
@@ -252,7 +252,7 @@ else
                     final BigDecimal updatedact = initialamountinaccount.subtract(object.getAmount()); 
                     act.setAmount(updatedact);
                   
-                    final String transactionType = environment.getProperty("2222");
+                    final String transactionType = "Withdrawal";
                     WrapperTransaction Obj = new WrapperTransaction(object.getCustomerId(),
                     object.getAccountId(), transactionType, object.getAmount());
                     transactionServiceImpl.createTransaction(Obj);
@@ -295,7 +295,7 @@ else
     log.info(" in  getAccountDetail");
     if(Id!=null )
     {
-      return accountRepository.findById(Id).get();
+      return accountRepository.findByaccountId(Id).get();
     } else {
       throw new HandleException(environment.getProperty("7777"));
     }
@@ -314,7 +314,7 @@ else
     {
         Optional op;
 
-        op = accountRepository.findById(account.getAccountId());
+        op = accountRepository.findByaccountId(account.getAccountId());
         if (op.isPresent())
         {
             account = accountRepository.saveAndFlush(account);

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sbank.dao.BankDenominationRepository;
 import com.sbank.exception.HandleException;
+import com.sbank.model.Atm_Denomination;
 import com.sbank.model.Bank;
 import com.sbank.model.Bank_Denomination;
 import com.sbank.model.RefMoney;
@@ -111,7 +112,7 @@ Logger log = Logger.getLogger("in bankdenomination impl");
    */
   @Override
   public void addDenominations(WrapperUpdateDenomination object) throws HandleException {
-    log.info("in update denomination ");
+    log.info("in add update denomination ");
 
     List<Bank_Denomination> reftable = bankDenominationRepository.findAll();
   
@@ -145,7 +146,7 @@ Logger log = Logger.getLogger("in bankdenomination impl");
   public void subDenominations(WrapperUpdateDenomination object) throws HandleException {
     // TODO Auto-generated method stub
     
-    log.info("in update denomination ");
+    log.info("in substract update denomination ");
 
     List<Bank_Denomination> reftable = bankDenominationRepository.findAll();
   
@@ -154,22 +155,21 @@ Logger log = Logger.getLogger("in bankdenomination impl");
     
     for(Bank_Denomination ref : reftable)
     {
-     
+     System.out.println("in chck"+ref);
         for (Map.Entry<Integer,Integer> entry : updaterequesttable.entrySet()) 
         {
       
-          if(ref.getCurrency().equals(entry.getKey()))
+          if(ref.getCurrency().equals(entry.getKey()) )
           {
-            if( ref.getCount()==0 )
-            {
-              throw new HandleException("requested amount is not avaialable");
-            }else {
-            
-            ref.setCount(ref.getCount()-entry.getValue());}
-
+     
+            ref.setCount(ref.getCount().intValue() - entry.getValue().intValue());
+            System.out.println("updating atm denom table "+ref.getCount());
+            }
+        
+        
           }
           
-        }
+        
         bankDenominationRepository.save(ref);
         
      }
@@ -207,9 +207,25 @@ Logger log = Logger.getLogger("in bankdenomination impl");
    
   }
 
- 
+  @Override
+  public List<Integer> getValidRefernceTable() throws HandleException {
+    
+    
+    List<Bank_Denomination> dblist = bankDenominationRepository.findAll();
+    
+    List<Integer> refenctable = new ArrayList<Integer>();
+    
+    for(Bank_Denomination ref : dblist)
+    {
+      if(ref.getCount()!=0)
+      {
+        refenctable.add(ref.getCurrency());
+      }
+    }
+    
+    return refenctable;
 
-
+  }
 
 
 

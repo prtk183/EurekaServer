@@ -1,8 +1,12 @@
-package com.sbank.service;
+ package com.sbank.service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,8 +18,10 @@ import com.sbank.controller.CustomerController;
 import com.sbank.dao.BankRepository;
 import com.sbank.dao.CustomerRepository;
 import com.sbank.exception.HandleException;
+import com.sbank.model.Audit;
 import com.sbank.model.Bank;
 import com.sbank.model.Customer;
+import com.sbank.model.EnumClass;
 import com.sbank.wrappers.WrapperClass;
 import com.sbank.wrappers.WrapperUpdateCustomer;
 
@@ -39,30 +45,33 @@ public class CustomerServiceImpl implements CustomerService {
   @Autowired
 	 private BankServiceImpl bankServiceImpl;
   
+  /**------------------audit service impl object-----------------------.*/
+  @Autowired
+  private IAuditService auditService;
+  
 	/**/
 	/* crating customer with id, pi, name and bankid
 	 * @see com.sbank.service.CustomerService#createCustomer(com.sbank.model.Customer)
 	 */
 	@SuppressWarnings("unlikely-arg-type")
   @Override
-	public Customer createCustomer(WrapperClass customer) throws HandleException {
+	public Customer createCustomer(WrapperClass wrapperClass) throws HandleException {
 	  
+	 
 	  Log.info("in customer service calling createCustomer");
 	  
-	  if(customer!=null )
+	  if(wrapperClass!=null && wrapperClass.getBankId()!=null && wrapperClass.customer!=null )
 	  {
 	    
-	  if(( bankServiceImpl.getBank(customer.getBankId()).getBankId()
-	      .equals(customer.getBankId()) )) //cheking valid bank in argument 
+	  if(( bankServiceImpl.getBank(wrapperClass.getBankId()).getBankId()
+	      .equals(wrapperClass.getBankId()) )) //cheking valid bank in argument 
 	    {
-	        if( customer.getCustomer().getCustomerName().isEmpty())  //checking valid customer data
+	        if( wrapperClass.customer.getCustomerName().isEmpty()
+	            && wrapperClass.customer.getPin()==null )  //checking valid customer data
 	          {
 	              throw new HandleException(environment.getProperty("201"));
 	          } else {
-	            Customer addNewCustomer =new Customer(customer.getCustomer().getCustomerName(),
-	                customer.customer.getPin(), bankServiceImpl.getBank(customer.getBankId()));
-
-	           
+	            Customer addNewCustomer = new Customer(wrapperClass.customer.getCustomerName(),  wrapperClass.customer.getPin(), bankServiceImpl.getBank(wrapperClass.getBankId()));
 	                      addNewCustomer =  customerRepository.save(addNewCustomer);
 	                      return addNewCustomer;
 	         }
@@ -111,10 +120,10 @@ public class CustomerServiceImpl implements CustomerService {
     Optional op;
     Customer customer=null;
     
-    op= customerRepository.findById(customerId);
+    op= customerRepository.findBycustomerId(customerId);
     if(op.isPresent())
     {
-        customer = customerRepository.findById(customerId).get();
+        customer = customerRepository.findBycustomerId(customerId).get();
         return customer;
     }
     else
@@ -128,15 +137,34 @@ public class CustomerServiceImpl implements CustomerService {
 
 
   @Override
-  public Customer updateCustomer(final WrapperUpdateCustomer object) throws HandleException {
-    
-    if(object!=null && object.getCustomerBankId()!=null & object.getCustomerName()!=null)
+  public Customer updateCustomer(final WrapperUpdateCustomer object) throws HandleException, CloneNotSupportedException {
+    Log.info("in customer service calling updateCustomer");
+
+    if( object.getCustomerBankId()!=null & object.getCustomerName()!=null)
     {
       
-      final Customer customer = customerRepository.findById(object.getId()).get();
+      final Customer customer = customerRepository.findBycustomerId(object.getId()).get();
+      
+      Log.info("in customer service bindig audit");
       customer.setBank(bankServiceImpl.getBank(object.getCustomerBankId()));
+ 
+      final Audit audit = new Audit();
+      Timestamp time= Timestamp.valueOf(LocalDateTime.now()) ;
+      audit.setEventDate(time);
+      //audit.setEventId(UUID.randomUUID());
+      audit.setEventName(EnumClass.eventName.CUSTOMER.toString());
+      audit.setEventType(EnumClass.eventType.UPDATED.toString());
+     
+      Customer clonedCustomer = (Customer) customer.clone();
+      
+      audit.setOldValue(clonedCustomer);
       customer.setCustomerName(object.getCustomerName());
-      return customerRepository.save(customer);
+      Customer newValue = customerRepository.save(customer);
+      audit.setNewValue(newValue);
+
+      auditService.sendAuditToMongo(audit); //sending audit reposrt via service
+   
+      return newValue;
     }
     else
     {

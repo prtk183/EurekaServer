@@ -62,7 +62,7 @@ public class TransactionServiceImpl implements TransactionService{
              tax.setCustomer(customer);
              tax.setTransactionType(ttype);
              tax.setAmount(obj.getAmount());
-             
+             System.out.println("in tax ob"+ttype);
              tax=transactionRepository.save(tax); //saving 
              return tax;
    
@@ -101,7 +101,7 @@ public class TransactionServiceImpl implements TransactionService{
       if(ts.getAccount().getAccountId().equals(accountId))     //fetching transaction record for an account id
       {
     
-        transactionReportForById.add(transactionRepository.findById(ts.getTransactionId()).get());
+        transactionReportForById.add(transactionRepository.findBytransactionId(ts.getTransactionId()).get());
     
       }
       System.out.println("yttreresdf"+i++);
@@ -128,7 +128,7 @@ public class TransactionServiceImpl implements TransactionService{
     log.info("in trnsaction service getTransaction");
     if(transactionId!=null)
     {
-    Transaction Tax = transactionRepository.findById(transactionId).get();
+    Transaction Tax = transactionRepository.findBytransactionId(transactionId).get();
     return Tax;
     
     }

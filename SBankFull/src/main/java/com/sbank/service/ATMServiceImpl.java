@@ -2,6 +2,7 @@ package com.sbank.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -97,11 +98,11 @@ public class ATMServiceImpl implements ATMService {
 
     if(object.getAmount()!=null && object.getAtmID()!=null && object.getBankId()!=null)
     {
-        if (atmrepository.findById(object.getAtmID()).isPresent()
+        if (atmrepository.findByatmId(object.getAtmID()).isPresent()
             && bankServiceImpl.getBank(object.getBankId()).getBankId().equals(object.getBankId())) //validating input data
         {
           
-            ATM atm = atmrepository.findById(object.getAtmID()).get();
+            ATM atm = atmrepository.findByatmId(object.getAtmID()).get();
             atm.setAmount(atm.getAmount().add(object.getAmount()));
             atm.setBank(bankServiceImpl.getBank(object.getBankId()));
 
@@ -118,8 +119,9 @@ public class ATMServiceImpl implements ATMService {
               WrapperRequestObject PObject = new WrapperRequestObject();
               PObject.setId(object.getAtmID());
               PObject.setRequestamount(object.getAmount());
-              List<Integer> atmreftable = atmDenominationServiceImpl.getAvailableRefernceTable();
+              List<Integer> atmreftable = bankDenominationServiceImpl.getValidRefernceTable();
               PObject.setRefernceTable(atmreftable);
+    
               
               WrapperDenomination permission = atmDenominationServiceImpl.getDenomination(PObject);
               
@@ -127,10 +129,21 @@ public class ATMServiceImpl implements ATMService {
               {
                 WrapperUpdateDenomination update = new WrapperUpdateDenomination();
                 update.setDenominationTable(permission.getDenominationTable());
-                bankDenominationServiceImpl.subDenominations(update);
-                
-                atmDenominationServiceImpl.addDenominations(update);
-                
+                Map<Integer, Integer> suggested = permission.getDenominationTable();
+                for (Map.Entry<Integer,Integer> entry : suggested.entrySet()) 
+                {
+                  System.out.println("Currency "+entry.getKey()+"count"+entry.getValue());
+
+                }
+
+          
+
+                bankDenominationServiceImpl.subDenominations(update); //subtracting from bank
+           
+
+                atmDenominationServiceImpl.addDenominations(update); //adding itno atm
+             
+
                bank.setAmount(bank.getAmount().subtract(object.getAmount()));
                bankServiceImpl.updateBank(bank);
                atm = atmrepository.save(atm);
@@ -160,11 +173,11 @@ public class ATMServiceImpl implements ATMService {
     
     if(object.getAccountId()!=null && object.getAmount()!=null && object.getAtmId()!=null && object.getBankId()!=null)
     {
-      if(atmrepository.findById(object.getAtmId()).isPresent() 
+      if(atmrepository.findByatmId(object.getAtmId()).isPresent() 
         && bankServiceImpl.getBank(object.getBankId()).getBankId().equals(object.getBankId())
         && accountServiceImpl.getAccountDetail(object.getAccountId()).getAccountId().equals(object.getAccountId()))   //validating the data
          {
-            ATM atm = atmrepository.findById(object.getAtmId()).get();
+            ATM atm = atmrepository.findByatmId(object.getAtmId()).get();
             BigDecimal initial = new BigDecimal(100);
             BigDecimal validamount = new BigDecimal(100);
             if(object.getAmount().compareTo(atm.getAmount())==-1 && object.getAmount().compareTo(validamount)==1)   //validating request wrt to atm
@@ -184,7 +197,7 @@ public class ATMServiceImpl implements ATMService {
                             WrapperRequestObject PObject = new WrapperRequestObject();
                             PObject.setId(object.getAtmId());
                             PObject.setRequestamount(object.getAmount());
-                            List<Integer> atmreftable = atmDenominationServiceImpl.getAvailableRefernceTable();
+                            List<Integer> atmreftable = atmDenominationServiceImpl.getValidRefernceTable();
                             PObject.setRefernceTable(atmreftable);
                             
                             WrapperDenomination permission = atmDenominationServiceImpl.getDenomination(PObject);
@@ -197,7 +210,7 @@ public class ATMServiceImpl implements ATMService {
                           
                             //when all validation is succesfull, saving into corresponding tables
                            
-                              final String transactionType = environment.getProperty("2222");
+                              final String transactionType = "Withdraw";
                               WrapperTransaction Obj = new WrapperTransaction(accountServiceImpl.getAccountDetail(object.getAccountId()).getCustomer().getCustomerId(),
                               object.getAccountId(), transactionType, object.getAmount());
                               transactionServiceImpl.createTransaction(Obj);
@@ -241,7 +254,7 @@ public class ATMServiceImpl implements ATMService {
     log.info("in atm service getAtm");
     if(atmId!=null)
     {
-    return (atmrepository.findById(atmId)).get();
+    return (atmrepository.findByatmId(atmId)).get();
     }
     else
     {

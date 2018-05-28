@@ -27,8 +27,7 @@ import com.sbank.wrappers.WrapperATMWithdraw;
 @Controller
 public class ATMController {
 
-  @Autowired
-  ATMService ATMService;
+ 
  
   @Autowired
   com.sbank.service.ATMServiceImpl ATMServiceImpl;

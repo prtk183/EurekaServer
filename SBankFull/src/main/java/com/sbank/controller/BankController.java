@@ -38,7 +38,19 @@ public class BankController {
 	@Autowired
   Environment environment;
 	
-	/**------logger ----.*/
+	public BankServiceImpl getBankServiceImpl() {
+    return bankServiceImpl;
+  }
+
+
+
+  public void setBankServiceImpl(BankServiceImpl bankServiceImpl) {
+    this.bankServiceImpl = bankServiceImpl;
+  }
+
+
+
+  /**------logger ----.*/
 	Logger log = Logger.getLogger(BankController.class.getName());
 	
 	/**creating a bank, passing wrapper class object having some amount as arguments. 

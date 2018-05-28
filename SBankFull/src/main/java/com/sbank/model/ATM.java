@@ -19,7 +19,7 @@ public class ATM {
   /**------------*/
   @Id
   @GeneratedValue(strategy=GenerationType.AUTO)
-  private Long ATMId;
+  private Long atmId;
   /**------------*/
   private BigDecimal amount;
 
@@ -28,12 +28,14 @@ public class ATM {
   /**------------*/
   private Bank bank;
 
-  public Long getATMId() {
-    return ATMId;
+  
+
+  public Long getAtmId() {
+    return atmId;
   }
 
-  public void setATMId(Long aTMId) {
-    ATMId = aTMId;
+  public void setAtmId(Long atmId) {
+    this.atmId = atmId;
   }
 
   public BigDecimal getAmount() {

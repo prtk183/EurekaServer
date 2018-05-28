@@ -100,11 +100,11 @@ public class BankServiceImpl  implements BankService {
     {
       Optional op;
       Bank bank=null;
-      op = bankrepository.findById(bankId);
+      op = bankrepository.findBybankId(bankId);
     
       if(op.isPresent())
       {
-        bank = bankrepository.findById(bankId).get(); 
+        bank = bankrepository.findBybankId(bankId).get(); 
       }
     return bank;
     } else {
@@ -123,7 +123,7 @@ public class BankServiceImpl  implements BankService {
     if(bank!=null && bank.getAmount()!=null && bank.getBankId()!=null)
     {
       Optional op;
-      op = bankrepository.findById(bank.getBankId());
+      op = bankrepository.findBybankId(bank.getBankId());
       if(op.isPresent())
       {
         bankrepository.saveAndFlush(bank); 

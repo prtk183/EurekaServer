@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "CUSTOMER")
-public class Customer {
+public class Customer implements Cloneable{
 
  
 /**-------------*/
@@ -53,6 +53,12 @@ public class Customer {
 
 
  
+@Override
+public Customer clone() throws CloneNotSupportedException {
+    // TODO Auto-generated method stub
+    return (Customer) super.clone();
+  }
+
 @Override
   public String toString() {
     return "Customer [customerId=" + customerId + ", customerName=" + customerName + ", pin=" + pin

@@ -44,8 +44,7 @@ public interface CustomerService {
 	 * @param object
 	 * @return
 	 * @throws HandleException
+	 * @throws CloneNotSupportedException 
 	 */
-	Customer updateCustomer(WrapperUpdateCustomer object) throws HandleException;
-
-
+	Customer updateCustomer(WrapperUpdateCustomer object) throws HandleException, CloneNotSupportedException;
 }
